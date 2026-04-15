@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-    faHammer, faTruckLoading, faScrewdriverWrench,
-    faLayerGroup, faChevronRight, faQuestionCircle, faChevronDown
-} from '@fortawesome/free-solid-svg-icons';
+import { faHammer, faTruckLoading, faScrewdriverWrench, faLayerGroup, faChevronRight, faQuestionCircle, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
 import './home.css';
 
 const Home = () => {
@@ -15,10 +13,10 @@ const Home = () => {
     };
 
     const categorias = [
-        { id: 1, nome: 'Ferramentas Elétricas', icon: faScrewdriverWrench },
-        { id: 2, nome: 'Andaimes e Escadas', icon: faLayerGroup },
-        { id: 3, nome: 'Carga e Elevação', icon: faTruckLoading },
-        { id: 4, nome: 'Equipamentos Pesados', icon: faHammer },
+        { id: 1, nome: 'Ferramentas Elétricas', icon: faScrewdriverWrench, slug: 'ferramentas-eletricas' },
+        { id: 2, nome: 'Andaimes e Escadas', icon: faLayerGroup, slug: 'andaimes' },
+        { id: 3, nome: 'Acesso e Elevação', icon: faTruckLoading, slug: 'acesso-elevacao' },
+        { id: 4, nome: 'Equipamentos Pesados', icon: faHammer, slug: 'equipamentos-pesados' },
     ];
 
     const blogPosts = [
@@ -67,10 +65,16 @@ const Home = () => {
                 <h2 className="section-title">Navegue por Categorias</h2>
                 <div className="categories-grid">
                     {categorias.map(cat => (
-                        <div key={cat.id} className="category-card">
+                        /* Envolva o card com o Link apontando para a rota dinâmica */
+                        <Link
+                            to={`/catalogo/${cat.slug}`}
+                            key={cat.id}
+                            className="category-card"
+                            style={{ textDecoration: 'none', color: 'inherit' }} // Garante que o link não mude a cor do texto
+                        >
                             <FontAwesomeIcon icon={cat.icon} className="cat-icon" />
                             <span>{cat.nome}</span>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             </section>

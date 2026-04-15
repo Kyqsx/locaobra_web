@@ -222,6 +222,7 @@ a:hover {
 .font-bold { font-weight: 700; }
 
 /* Color Utilities */
+.text-white { color: var(--white); }
 .text-primary { color: var(--primary-blue); }
 .text-success { color: var(--success-green); }
 .text-warning { color: var(--warning-yellow); }
@@ -348,6 +349,38 @@ a:hover {
     padding-right: var(--space-10);
 }
 
+select {
+    width: 100%; /* Ou um valor fixo como 200px */
+    padding: 10px 15px;
+    font-size: 16px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    background-color: #f1f1f1;
+    border: 1px solid #f1f1f1; /* Cinza claro para combinar com as bordas das imagens */
+    border-radius: 8px; /* Arredondado suave como os botões */
+    cursor: pointer;
+    appearance: none; /* Remove a seta padrão do navegador */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    
+    /* Adicionando uma seta customizada via Background Image */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff8c00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+select:hover {
+    border-color: var(--primary-color); /* Laranja da sua marca */
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+}
+
 /* ============================================
    BUTTONS
    ============================================ */
@@ -368,6 +401,10 @@ a:hover {
     user-select: none;
     white-space: nowrap;
 }
+
+.btn:hover{
+    filter: brightness(0.8);
+}   
 
 .btn:focus {
     outline: none;

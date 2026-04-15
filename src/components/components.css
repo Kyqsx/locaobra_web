@@ -19,6 +19,8 @@ header {
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    max-height: 80px;
+    height: 80px;
 }
 
 header .container {
@@ -107,7 +109,6 @@ nav {
 
 .abas:focus {
     outline: none;
-    box-shadow: 0 0 0 2px var(--primary-color);
     color: var(--primary-color);
     transform: scale(1.05);
 }
@@ -552,7 +553,6 @@ nav {
 
 .tab-item.active {
     color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
 }
 
 /* ============================================

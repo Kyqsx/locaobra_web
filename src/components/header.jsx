@@ -43,9 +43,9 @@ function Header() {
                     {/* ==================== MENU PARA CLIENTE ==================== */}
                     {user && user.tipo === 'CLIENTE' || !user && (
                         <>
-                            <Link to="/#" className='abas'>Elevação</Link>
-                            <Link to="/#" className='abas'>Andaimes</Link>
-                            <Link to="/#" className='abas'>Concretagem</Link>
+                            <Link to="/catalogo/acesso-elevacao" className='abas'>Acesso e Elevação</Link>
+                            <Link to="/catalogo/andaimes" className='abas'>Andaimes</Link>
+                            <Link to="/catalogo/concretagem" className='abas'>Concretagem</Link>
                             <Link to="/#" className='abas'>Ferramentas</Link>
                         </>
                     )}
