@@ -178,6 +178,13 @@ nav {
     display: inline-block;
 }
 
+/* Faz o dropdown aparecer quando passar o mouse no container pai */
+.dropdown:hover .dropdown-content {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+}
+
 .dropdown-content {
     position: absolute;
     top: 100%;
@@ -191,6 +198,8 @@ nav {
     padding: var(--space-2);
     margin-top: var(--space-1);
     animation: dropdownSlide 0.2s ease;
+    display: none; /* Adicione isso se não estiver no seu CSS */
+    opacity: 0;
 }
 
 .dropdown-content .sub-item {

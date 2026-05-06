@@ -57,10 +57,11 @@ function Header() {
                 <nav>
                     {/* ==================== PERFIL E LOGOUT ==================== */}
                     {user ? (
-                        <div>
+                        <div className="dropdown"> {/* Adicionado a classe dropdown aqui */}
                             <button className="abas perfil-link">
                                 <FontAwesomeIcon icon={faUser} /> {user.nome || 'Perfil'}
                             </button>
+
                             <div className="dropdown-content user-dropdown-content">
                                 <Link to="/perfil" className="sub-item">
                                     <FontAwesomeIcon icon={faUser} /> Ver Perfil
