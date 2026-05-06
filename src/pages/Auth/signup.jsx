@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../utils/useAuth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash, faUser, faEnvelope, faLock, faHardHat } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faEyeSlash, faUser, faEnvelope, faLock, faHardHat, faRocket } from '@fortawesome/free-solid-svg-icons';
 import api from '../../service/api';
 import './auth.css';
 import loginImg from '../../assets/AuthImage.png';
@@ -46,6 +46,7 @@ const Signup = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log("Iniciando processo de cadastro...");
 
         if (senha !== confirmPassword) {
             setErrorMessage('As senhas não coincidem');
@@ -59,24 +60,47 @@ const Signup = () => {
             return;
         }
 
+        // Montando o objeto para debug
+        const payload = {
+            nome,
+            login: email,
+            senha,
+            tipo: 'CLIENTE'
+        };
+
+        console.log("Enviando dados para o servidor:", { ...payload, senha: "[PROTEGIDO]" });
+
         try {
-            const response = await api.post('/api/v1/auth/signup', {
-                nome,
-                email,
-                senha,
-                tipo: 'CLIENTE'
-            });
+            const response = await api.post('/api/auth/signup', payload);
+            console.log("Resposta do servidor (Sucesso):", response.data);
 
-            if (response.data.token) {
-                const { id, token, tipo, nome: n, email: e_resp } = response.data;
-                login(e_resp || email, token, { id, nome: n || nome, tipo });
+            if (response.data.token || response.status === 201) {
+                // Se o backend retornar o token no signup (login automático)
+                if (response.data.token) {
+                    const { id, token, tipo, nome: n, email: e_resp } = response.data;
+                    login(e_resp || email, token, { id, nome: n || nome, tipo });
+                }
 
-                // Redireciona para o próximo passo do fluxo de aluguel
-                navigate('/cadastrar-endereco');
+                console.log("Cadastro concluído! Redirecionando...");
+                navigate('/');
             }
         } catch (error) {
-            console.error('Erro no registro:', error);
-            setErrorMessage(error.response?.data || 'Erro ao cadastrar. Verifique os dados e tente novamente.');
+            console.error("Erro detalhado na requisição:", error);
+            
+            // CORREÇÃO CRÍTICA: Extraindo apenas a mensagem de texto
+            // Se error.response.data for um objeto {status, message, timestamp}, pegamos só o .message
+            let msgFim = "Erro ao cadastrar. Verifique os dados e tente novamente.";
+            
+            if (error.response && error.response.data) {
+                if (typeof error.response.data === 'string') {
+                    msgFim = error.response.data;
+                } else if (error.response.data.message) {
+                    msgFim = error.response.data.message;
+                }
+                console.log("Mensagem de erro do Backend:", msgFim);
+            }
+
+            setErrorMessage(msgFim);
             setShowError(true);
         }
     };
@@ -96,7 +120,7 @@ const Signup = () => {
             {/* Metade Direita: Formulário */}
             <div className="loginFormSide">
                 <div className="login-card">
-                    <h2>Crie sua conta! 🚀</h2>
+                    <h2 className="loginCardTitle">Crie sua conta! <FontAwesomeIcon icon={faRocket} /></h2>
                     <p>Faça seu cadastro para começar a alugar.</p>
 
                     <form className="login-form" onSubmit={handleSubmit}>

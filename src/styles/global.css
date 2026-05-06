@@ -47,6 +47,8 @@
     --text-4xl: 2.25rem;   /* 36px */
     --text-5xl: 3rem;      /* 48px */
 
+    --text-center: text-align: center;
+
     /* Espacamentos */
     --space-1: 0.25rem;    /* 4px */
     --space-2: 0.5rem;     /* 8px */

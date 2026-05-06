@@ -1,4 +1,3 @@
-// src/context/useAuth.jsx
 import { useState, useEffect, useContext, createContext } from 'react';
 import api from '../service/api';
 
@@ -19,80 +18,68 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
+            // Configura o cabeçalho IMEDIATAMENTE antes de chamar a sessão
             api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
             checkSession();
         } else {
             setLoading(false);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const checkSession = async () => {
         try {
-            // 1. Verifica sessão ativa
-            const response = await api.get('/api/v1/auth/me');
+            // Se o token estiver expirado, o JwtService no Java vai retornar 401/403
+            // e o catch(error) vai disparar o logout.
+            const response = await api.get('/api/auth/me');
             const sessionData = response.data;
 
-            if (sessionData.logado === true) {
-                // 🔥 IMPORTANTE: em seu backend, "nome" na verdade é o EMAIL!
-                const emailFromSession = sessionData.nome; // ex: "mateuscordeiro1311@gmail.com"
-                const userIdFromSession = sessionData.id;
-                const userType = sessionData.tipo || "CLIENTE";
-
-                // Validação mínima
-                if (!emailFromSession || typeof emailFromSession !== 'string') {
-                    throw new Error("E-mail da sessão inválido");
-                }
+            // Verifique se o seu backend retorna o campo 'login' (subject do JWT)
+            if (sessionData && (sessionData.id || sessionData.login)) {
+                const userEmail = sessionData.login || sessionData.email;
 
                 let userData = {
-                    id: userIdFromSession,
-                    nome: "Carregando...",
-                    email: emailFromSession,
-                    tipo: userType,
+                    id: sessionData.id,
+                    nome: sessionData.nome || userEmail.split('@')[0],
+                    email: userEmail,
+                    tipo: sessionData.tipo,
                 };
 
-                console.log('📋 Dados da sessão:', { id: userIdFromSession, email: emailFromSession, tipo: userType });
-
-                // 2. Carrega dados reais do cliente PELO E-MAIL (não pelo ID)
-                if (userType === "CLIENTE") {
+                // Busca dados de cliente se necessário...
+                if (userData.tipo === "CLIENTE") {
                     try {
-                        const encodedEmail = encodeURIComponent(emailFromSession);
+                        // Busca o perfil pelo email ou ID
+                        const encodedEmail = encodeURIComponent(userEmail);
                         const perfilResponse = await api.get(`/api/v1/clientes/perfil?email=${encodedEmail}`);
                         const perfil = perfilResponse.data;
 
-                        userData.nome = perfil.nome || emailFromSession.split('@')[0];
-                        userData.id = perfil.id_cliente || userIdFromSession; // atualiza ID se disponível
+                        userData.nome = perfil.nome || userData.nome;
+                        userData.id_cliente = perfil.id; // ID da tabela de clientes, se for diferente do user_id
                     } catch (err) {
-                        console.warn("⚠️ Não foi possível carregar perfil por e-mail. Usando fallback.", err);
-                        userData.nome = emailFromSession.split('@')[0] || "Usuário";
+                        console.warn("⚠️ Perfil detalhado não encontrado. Usando dados básicos da conta.");
                     }
-                } else {
-                    // Para outros tipos (ex: FUNCIONARIO), usa o que vier
-                    userData.nome = emailFromSession.split('@')[0] || "Usuário";
                 }
 
-                console.log('✅ Usuário autenticado:', userData);
                 setUser(userData);
             } else {
-                console.log('❌ Sessão não está logada');
                 logout();
             }
         } catch (error) {
-            console.error("❌ Erro ao validar sessão:", error);
+            console.error("Sessão inválida ou expirada");
             logout();
         } finally {
-            setLoading(false);
+            setLoading(false); // SÓ FINALIZA O LOADING AQUI
         }
     };
 
     const login = (loginEmail, token, userDataFromLogin = {}) => {
-        // Salva no localStorage
+        console.log("Iniciando persistência de login para:", loginEmail);
+
         localStorage.setItem('token', token);
         localStorage.setItem('userEmail', loginEmail);
 
-        // Configura API
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-        // Cria objeto user mínimo
         const userToSet = {
             id: userDataFromLogin.id || null,
             nome: userDataFromLogin.nome || loginEmail.split('@')[0],
@@ -105,6 +92,7 @@ export function AuthProvider({ children }) {
     };
 
     const logout = () => {
+        console.log("Encerrando sessão...");
         localStorage.removeItem('token');
         localStorage.removeItem('userEmail');
         delete api.defaults.headers.common['Authorization'];

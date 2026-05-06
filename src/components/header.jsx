@@ -20,7 +20,9 @@ function Header() {
             <div className="container">
 
                 <div className="logo">
-                    <img src={logo} className="logo-isotipo" alt="logo" />
+                    <Link to="/">
+                        <img src={logo} className="logo-isotipo" alt="logo" />
+                    </Link>
                 </div>
 
                 <nav>

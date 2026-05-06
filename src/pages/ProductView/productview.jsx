@@ -1,75 +1,174 @@
-import './productview.css'
-import betoneiraimg from "../../assets/betoneiraimg.png"
+import React, { useState } from 'react';
+import './ProductPage.css';
 
-const ProductView = () => {
+const ProductPageLocaObra = () => {
+  const [quantity, setQuantity] = useState(1);
+  const [activeImage, setActiveImage] = useState(0);
+  const [selectedOption, setSelectedOption] = useState('padrao');
 
-    return (
-        <div className="container-productview">
-            <div className="card-productview">
-                <div className="left-side">
-                    <div className='productview-image-container'>
-                        <div className='thumbnails-column'>
-                            <img className='sub-product-img' src={betoneiraimg} alt="Vista 1" />
-                            <img className='sub-product-img' src={betoneiraimg} alt="Vista 2" />
-                        </div>
-                        <img className='product-img' src={betoneiraimg} alt="Produto Principal" />
-                    </div>
+  const images = [null, null, null, null];
 
-                    <div className='info-group'>
-                        <h2 className='titulo-info'>Confira a descrição</h2>
-                        <p className='text-info'>A Betoneira CSM 400L é a escolha líder para obras de grande porte, oferecendo alta produtividade e durabilidade extrema para mistura de concreto e argamassa.</p>
-                    </div>
+  const specs = [
+    { label: 'Material', value: 'Alumínio Resistente' },
+    { label: 'Altura Máxima', value: '4.5 metros' },
+    { label: 'Peso Máximo', value: '150 kg' },
+    { label: 'Acabamento', value: 'Fosco Antiderrapante' },
+  ];
 
-                    <div className='specs-container'>
-                        <h2 className='titulo-info'>Especificações Técnicas</h2>
-                        <div className='specs-grid'>
-                            <div className='spec-item'><strong>Capacidade:</strong> 400 Litros</div>
-                            <div className='spec-item'><strong>Motor:</strong> 2.0 CV (Eletro)</div>
-                            <div className='spec-item'><strong>Tensão:</strong> 220V</div>
-                            <div className='spec-item'><strong>Peso:</strong> 180kg</div>
-                        </div>
-                    </div>
-                </div>
+  const handleQuantityChange = (operation) => {
+    if (operation === 'increase') {
+      setQuantity(quantity + 1);
+    } else if (operation === 'decrease' && quantity > 1) {
+      setQuantity(quantity - 1);
+    }
+  };
 
-                <div className="right-side">
+  const handleQuantityInput = (e) => {
+    const value = parseInt(e.target.value) || 1;
+    setQuantity(value > 0 ? value : 1);
+  };
 
-                    <div className='info-group'>
-                        <h2 className='titulo-info'>Opções de aluguel</h2>
-                        <select name="rent-options" id="rent-options" className='form-select'>
-                            <option value="daily">Diária</option>
-                            <option value="weekly">Semanal (5% OFF)</option>
-                            <option value="by-work">Mensal (15% OFF)</option>
-                        </select>
-                    </div>
+  const handleRent = () => {
+    alert(`Alugando ${quantity}x Escada Extensível. Redirecionando para checkout...`);
+  };
 
-
-
-                    <div className='info-group'>
-                        <h2 className='titulo-info'>Valor da locação</h2>
-                        <div className='price-row'>
-                            <p className='text-info'>R$ 85,00 / dia</p>
-                        </div>
-                    </div>
-                    <div className="info-group">
-                        <h2 className='titulo-info'>Estoque Disponível</h2>
-                        <p className='text-info'>100 unidades em estoque</p>
-                    </div>
-                    <div className="action-group">
-                        <button className='btn btn-full buy-button'>Alugar Agora</button>
-                        <button className='btn btn-full cart-button'>Adicionar ao Carrinho</button>
-                    </div>
-                    <div className="info-group">
-                        <h2 className='titulo-info'>Calcular Entrega</h2>
-                        <div className="frete-input-group">
-                            <input type="text" placeholder="00000-000" className="frete-input" />
-                            <button className="frete-button">OK</button>
-                        </div>
-                    </div>
-                </div>
+  return (
+    <div>
+      {/* Produto */}
+      <div className="produto-wrapper">
+        <div className="produto-container">
+          {/* Seção de Imagens com Título e Descrição */}
+          <div className="product-image-section">
+            <div className="main-image-container">
+              <div className="main-image-placeholder">📐</div>
             </div>
-        </div>
-    )
+            <div className="thumbnail-carousel">
+              {images.map((_, index) => (
+                <div
+                  key={index}
+                  className={`thumbnail ${activeImage === index ? 'active' : ''}`}
+                  onClick={() => setActiveImage(index)}
+                >
+                  <span style={{ fontSize: '28px' }}>📐</span>
+                </div>
+              ))}
+            </div>
 
+            {/* Informações Adicionais */}
+            <div className="additional-info">
+              <div className="info-title">
+                <span className="info-icon">ℹ</span>
+                Informações de Aluguel
+              </div>
+              <div className="info-list">
+                <div className="info-item">
+                  <span className="info-icon">📦</span>
+                  Entrega e retirada gratuitas em São Paulo
+                </div>
+                <div className="info-item">
+                  <span className="info-icon">🛡️</span>
+                  Produto com seguro incluído
+                </div>
+                <div className="info-item">
+                  <span className="info-icon">⚙️</span>
+                  Suporte técnico 24/7
+                </div>
+                <div className="info-item">
+                  <span className="info-icon">💳</span>
+                  Pagamento seguro com parcelamento
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Seção de Informações - Lado Direito */}
+          <div className="product-info-section">
+            {/* Título, Descrição e Avaliações embaixo das imagens */}
+            <div className="product-text-section">
+              <h1 className="product-title">Escada Extensível Profissional</h1>
+              <p className="product-description">
+                Escada de alumínio leve e resistente para trabalhos em altura. 
+                Ideal para construção civil, pinturas, limpezas e manutenção. 
+                Estrutura robusta que alcança grandes alturas com total segurança.
+              </p>
+              <div className="rating-section">
+                <span className="stars">★★★★★</span>
+                <span className="rating-count">4.8 (542 avaliações)</span>
+              </div>
+            </div>
+            {/* Especificações */}
+            <div className="specs-section">
+              <div className="specs-title">Especificações Técnicas</div>
+              <div className="specs-grid">
+                {specs.map((spec, index) => (
+                  <div key={index} className="spec-item">
+                    <div className="spec-icon">✓</div>
+                    <div className="spec-content">
+                      <div className="spec-label">{spec.label}</div>
+                      <div className="spec-value">{spec.value}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Tipo de Locação e Quantidade */}
+            <div className="options-section">
+              <div className="option-group">
+                <label className="option-label">Tipo de locação</label>
+                <select
+                  className="option-select"
+                  value={selectedOption}
+                  onChange={(e) => setSelectedOption(e.target.value)}
+                >
+                  <option value="padrao">Diária</option>
+                  <option value="reforçada">Semanal</option>
+                  <option value="profissional">Longo Prazo</option>
+                </select>
+              </div>
+
+              <div className="option-group">
+                <label className="option-label">Quantidade de Dias</label>
+                <div className="quantity-selector">
+                  <button
+                    className="quantity-btn"
+                    onClick={() => handleQuantityChange('decrease')}
+                  >
+                    −
+                  </button>
+                  <input
+                    type="number"
+                    className="quantity-input"
+                    value={quantity}
+                    onChange={handleQuantityInput}
+                    min="1"
+                  />
+                  <button
+                    className="quantity-btn"
+                    onClick={() => handleQuantityChange('increase')}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Ações */}
+            <div className="actions-section">
+              <button className="btn-main" onClick={handleRent}>
+                <span>🛒</span> Alugar Agora
+              </button>
+              <button className="btn-secondary">
+                <span>❤</span> Adicionar aos Favoritos
+              </button>
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export default ProductView;
+export default ProductPageLocaObra;

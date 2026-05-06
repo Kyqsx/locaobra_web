@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../utils/useAuth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash, faLock, faEnvelope, faHardHat } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faEyeSlash, faLock, faEnvelope, faHardHat, faRocket } from '@fortawesome/free-solid-svg-icons';
 import api from '../../service/api';
 import './auth.css';
-import loginImg from '../../assets/AuthImage.png'; // Altere para o seu caminho
+import loginImg from '../../assets/AuthImage.png';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -13,12 +13,15 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("--- INÍCIO DO PROCESSO DE LOGIN ---");
+    console.log("Tentativa para:", email);
+
     if (!email || !senha) {
       setErrorMessage('Por favor, preencha todos os campos.');
       setShowError(true);
@@ -26,29 +29,63 @@ const Login = () => {
     }
 
     try {
-      const response = await api.post('/api/v1/auth/login', { email, senha });
+      const response = await api.post('/api/auth/login', { login: email, senha });
+
+      // LOG 1: Ver o que vem do Backend
+      console.log("DEBUG: Resposta bruta do servidor:", response.data);
+
       const { token, tipo, id, nome } = response.data;
 
-      if (!token || !tipo) throw new Error('Resposta inválida do servidor');
+      // LOG 2: Verificar campos específicos
+      console.log("DEBUG: Dados desestruturados ->", {
+        temToken: !!token,
+        tipo: tipo,
+        id: id,
+        nome: nome
+      });
 
+      if (!token || !tipo) {
+        console.error("ERRO: O servidor não enviou token ou tipo de usuário!");
+        throw new Error('Resposta inválida do servidor: Faltam dados essenciais (token/tipo).');
+      }
+
+      // LOG 3: Antes de chamar a função do Contexto
+      console.log("DEBUG: Chamando função login() do useAuth...");
       login(email, token, { id, nome, tipo });
 
-      // Redirecionamento baseado no tipo de usuário do aluguel
-      if (tipo === 'CLIENTE' || tipo === 'FUNCIONARIO') {
-        navigate('/');
-      } else if (tipo === 'ADMIN') {
+      // LOG 4: Verificar se o LocalStorage foi preenchido
+      console.log("DEBUG: Token no LocalStorage após login():", localStorage.getItem('token'));
+
+      console.log(`✅ Login bem-sucedido! Usuário tipo: ${tipo}. Redirecionando...`);
+
+      if (tipo === 'ADMIN') {
         navigate('/admin');
+      } else {
+        navigate('/');
       }
 
     } catch (error) {
-      console.error('Erro no login:', error);
-      if (error.response?.status === 401) {
-        setErrorMessage('Email ou senha inválidos.');
+      console.log("--- ERRO NO LOGIN ---");
+      console.error('Erro detalhado:', error);
+
+      let msgFim = 'Erro inesperado. Tente novamente.';
+
+      if (error.response) {
+        const status = error.response.status;
+        const data = error.response.data;
+        console.log(`DEBUG: Erro HTTP ${status} recebido do backend.`);
+
+        if (status === 401 || status === 403) {
+          msgFim = 'Email ou senha inválidos.';
+        } else {
+          msgFim = typeof data === 'string' ? data : (data.message || 'Erro no servidor.');
+        }
       } else if (error.request) {
-        setErrorMessage('Erro de conexão com o servidor.');
-      } else {
-        setErrorMessage('Erro inesperado. Tente novamente.');
+        console.log("DEBUG: O servidor não respondeu à requisição.");
+        msgFim = 'Não foi possível conectar ao servidor. Verifique sua internet.';
       }
+
+      setErrorMessage(msgFim);
       setShowError(true);
     }
   };
@@ -59,7 +96,7 @@ const Login = () => {
       <div className="loginImageSide" style={{ backgroundImage: `url(${loginImg})` }}>
         <div className="imageOverlay">
           <div className="brandLogo">
-            <FontAwesomeIcon icon={faHardHat} /> <span>LocaObra</span>
+            <FontAwesomeIcon icon={faHardHat} className="brandIcon" /> <span>LocaObra</span>
           </div>
           <h1>As melhores ferramentas para sua obra, a um clique de distância.</h1>
         </div>
@@ -68,7 +105,7 @@ const Login = () => {
       {/* Metade Direita: Formulário */}
       <div className="loginFormSide">
         <div className="login-card">
-          <h2>Bem-vindo de volta!</h2>
+          <h2 className="loginCardTitle">Bem-vindo de volta!</h2>
           <p>Entre com sua conta para alugar e gerenciar.</p>
 
           <form className="login-form" onSubmit={handleSubmit}>

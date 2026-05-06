@@ -18,7 +18,7 @@
 }
 
 .imageOverlay {
-    background: rgba(0, 0, 0, 0.4); /* Escurece a imagem para ler o texto */
+    background: rgba(0, 0, 0, 0.7); /* Escurece a imagem para ler o texto */
     width: 100%;
     height: 100%;
     display: flex;
@@ -40,6 +40,7 @@
     max-width: 500px;
     line-height: 1.2;
     color: #fff;
+    text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px #fff;
 }
 
 /* Lado do Formulário */
@@ -50,6 +51,10 @@
     justify-content: center;
     background-color: #f4f7f6;
     padding: 40px;
+}
+
+.loginCardTitle {
+    
 }
 
 .login-card { width: 100%; max-width: 400px; }
