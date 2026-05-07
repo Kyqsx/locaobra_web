@@ -121,9 +121,9 @@ const ProductPageLocaObra = () => {
                   value={selectedOption}
                   onChange={(e) => setSelectedOption(e.target.value)}
                 >
-                  <option value="padrao">Diária</option>
-                  <option value="reforçada">Semanal</option>
-                  <option value="profissional">Longo Prazo</option>
+                  <option value="daily">Diária</option>
+                  <option value="weekly">Semanal</option>
+                  <option value="monthly">Mensal</option>
                 </select>
               </div>
 

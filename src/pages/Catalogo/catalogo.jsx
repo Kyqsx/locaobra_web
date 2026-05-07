@@ -1,42 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import api from '../../service/api'; // Importe sua instância do axios
 import './Catalogo.css';
 
-const EQUIPAMENTOS = [
-  { 
-    id: 1, 
-    nome: 'Andaime Tubular 1.0m', 
-    categoria: 'andaimes', 
-    valorBase: 10,
-    descricao: 'Ideal para reformas, manutenções e pinturas em fachadas. Estrutura robusta e fácil montagem.'
-  },
-  { 
-    id: 2, 
-    nome: 'Andaime Fachadeiro', 
-    categoria: 'andaimes',
-    valorBase: 15,
-    descricao: 'Permite o livre acesso de pessoas pela base e a movimentação horizontal em vários níveis de trabalho.'
-  },
-  { 
-    id: 3, 
-    nome: 'Escada Extensível', 
-    categoria: 'acesso-elevacao', 
-    valorBase: 10,
-    descricao: 'Escada de alumínio leve e resistente, alcança grandes alturas com total segurança para o operador.'
-  },
-  { 
-    id: 6, 
-    nome: 'Empilhadeira Elétrica', 
-    categoria: 'acesso-elevacao', 
-    valorBase: 450,
-    descricao: 'Equipamento de alta performance para movimentação de cargas em galpões e centros de distribuição.'
-  },
-];
-
 function Catalogo() {
-  const { slug } = useParams(); 
+  const { slug } = useParams();
+  const [equipamentos, setEquipamentos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const nomeFormatado = slug ? slug.replace(/-/g, ' ') : "";
-  const itensFiltrados = EQUIPAMENTOS.filter(item => item.categoria === slug);
+
+  useEffect(() => {
+    fetchEquipamentos();
+  }, [slug]); // Recarrega sempre que mudar a categoria na URL
+
+  function fetchEquipamentos() {
+    setLoading(true);
+    setError(null);
+
+    // Faz a chamada para o seu endpoint de listagem
+    api.get('/api/equipamentos')
+      .then(response => {
+        // Filtra os equipamentos que pertencem à categoria atual (slug)
+        // Certifique-se de que no banco a categoria esteja salva em maiúsculas ou minúsculas conforme o slug
+        const filtrados = response.data.filter(eq =>
+          eq.categoria.toLowerCase() === slug.toLowerCase()
+        );
+        setEquipamentos(filtrados);
+      })
+      .catch(err => {
+        console.error(err);
+        setError("Não foi possível carregar os equipamentos.");
+      })
+      .finally(() => setLoading(false));
+  }
 
   return (
     <div className="container-catalogo">
@@ -48,7 +46,7 @@ function Catalogo() {
 
       <div className="header-catalogo">
         <h1 className="titulo-pagina">
-          Aluguel de Equipamentos para <span className="destaque-categoria">{nomeFormatado}</span>
+          Aluguel de <span className="destaque-categoria">{nomeFormatado}</span>
         </h1>
 
         <button className="btn-filtrar">
@@ -58,29 +56,49 @@ function Catalogo() {
           Filtrar
         </button>
       </div>
-      
+
       <div className="grid-produtos">
-        {itensFiltrados.length > 0 ? (
-          itensFiltrados.map(item => (
+        {loading ? (
+          <div className="loading-container">Carregando equipamentos...</div>
+        ) : error ? (
+          <div className="error-container">{error}</div>
+        ) : equipamentos.length > 0 ? (
+          equipamentos.map(item => (
             <div key={item.id} className="card-produto">
-              <div className="placeholder-img">🏗️</div> 
-              <h3>{item.nome}</h3>
-              
-              {/* DESCRIÇÃO COM LIMITE DE LINHAS NO CSS */}
-              <p className="descricao-produto">
-                {item.descricao || "Sem descrição disponível para este equipamento."}
-              </p>
+              <Link to={`/productview/${item.id}`} className="btn-card">
+                <div className="image-container">
+                  {item.imagens && item.imagens.length > 0 ? (
+                    <img
+                      src={`${api.defaults.baseURL}${item.imagens[0]}`}
+                      alt={item.nome}
+                      className="img-produto-cat"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = '<div class="placeholder-img">🏗️</div>';
+                      }}
+                    />
+                  ) : (
+                    <div className="placeholder-img">🏗️</div>
+                  )}
+                </div>
 
-              <p className="preco-diaria">
-                Diária: <span className='valor'>R$ {item.valorBase?.toFixed(2)}</span>
-              </p>
+                <h3>{item.nome}</h3>
 
-              <button className="btn-alugar">Alugar agora</button>
+                <p className="descricao-produto">
+                  {item.descricao || "Sem descrição disponível."}
+                </p>
+
+                <p className="preco-diaria">
+                  <span className='valor'>R$ {item.valorDiaria?.toFixed(2)}</span>
+                </p>
+
+              </Link> 
             </div>
           ))
         ) : (
           <div className="vazio">
-            <p>Nenhum equipamento encontrado em <strong>{nomeFormatado}</strong>.</p>
+            <p>Nenhum equipamento disponível em <strong>{nomeFormatado}</strong> no momento.</p>
           </div>
         )}
       </div>

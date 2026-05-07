@@ -238,6 +238,57 @@ nav {
     width: 0px;
 }
 
+/* Estrutura da Sidebar Administrativa */
+.admin-sidebar {
+    width: 260px;
+    background-color: var(--white);
+    border-right: 1px solid var(--gray-200);
+    padding: var(--space-6) var(--space-4);
+    height: 100vh;
+    position: sticky;
+    top: 0;
+}
+
+.sidebar-header {
+    margin-bottom: var(--space-8);
+    padding-left: var(--space-4);
+}
+
+.sidebar-logo {
+    text-decoration: none;
+    font-size: var(--text-xl);
+    font-weight: 800;
+}
+
+.sidebar-logo .loca { color: var(--primary-color); }
+.sidebar-logo .obra { color: var(--dark-grey); }
+
+.sidebar-subtitle {
+    font-size: var(--text-xs);
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: var(--space-1);
+}
+
+/* Ajuste para os itens dentro da Sidebar */
+.sidebar-nav.user-dropdown-content .sub-item {
+    margin-bottom: var(--space-1);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.sidebar-divider {
+    height: 1px;
+    background-color: var(--gray-200);
+    margin: var(--space-4) 0;
+}
+
+/* Garante que o efeito do ::before (barrinha azul) funcione na Sidebar */
+.sidebar-nav.user-dropdown-content .sub-item:hover::before {
+    width: 4px;
+}
+
 @keyframes dropdownSlide {
     from {
         opacity: 0;

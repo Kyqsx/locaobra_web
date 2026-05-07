@@ -6,15 +6,36 @@ import Login from "./pages/Auth/login";
 import Signup from './pages/Auth/signup';
 import Catalogo from './pages/Catalogo/catalogo';
 import ProductView from "./pages/ProductView/productview";
+import AdminDashboard from './pages/Admin/dashboard'; 
+import AdminEquipamentos from './pages/Admin/equipamentos';
 
 import Header from "./components/header";
+import Sidebar from "./components/sidebar";
 
-// Componente para proteger rotas e gerenciar o loading do F5
+function SiteLayout() {
+    return (
+        <>
+            <Header />
+            <main style={{ minHeight: '80vh' }}>
+                <Outlet />
+            </main>
+        </>
+    );
+}
+
+function AdminLayout() {
+    return (
+        <div style={{ display: 'flex', minHeight: '100vh' }}>
+            <Sidebar />
+            <main style={{ flex: 1, padding: '20px', backgroundColor: '#f4f7f6' }}>
+                <Outlet />
+            </main>
+        </div>
+    );
+}
+
 function ProtectedHandler({ children }) {
-    const { isAuthenticated, loading } = useAuth();
-
-    // Enquanto o checkSession() no useAuth não termina, mostramos uma tela de espera
-    // Isso evita que o sistema te deslogue por "usuário ser null" no primeiro segundo
+    const { loading } = useAuth();
     if (loading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -22,7 +43,15 @@ function ProtectedHandler({ children }) {
             </div>
         );
     }
+    return children;
+}
 
+function AdminRoute({ children }) {
+    const { user, isAuthenticated, loading } = useAuth();
+    if (loading) return null;
+    if (!isAuthenticated || user?.tipo !== 'ADMIN') {
+        return <Navigate to="/" replace />;
+    }
     return children;
 }
 
@@ -31,37 +60,32 @@ function RotasApp() {
         <AuthProvider>
             <BrowserRouter>
                 <Routes>
-                    {/* Rotas Públicas de Auth - Sem Header */}
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />
 
-                    {/* Rotas que usam o Layout (Header + Conteúdo) */}
-                    <Route element={
-                        <ProtectedHandler>
-                            <Layout />
-                        </ProtectedHandler>
-                    }>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/catalogo/:slug" element={<Catalogo />} />
-                        <Route path="/productview" element={<ProductView />} />
+                    <Route element={<ProtectedHandler><Outlet /></ProtectedHandler>}>
                         
-                        {/* Exemplo de Rota que SÓ Admin acessa (se precisar) */}
-                        {/* <Route path="/admin" element={isAdmin ? <AdminPage /> : <Navigate to="/" />} /> */}
+                        <Route element={<SiteLayout />}>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/catalogo/:slug" element={<Catalogo />} />
+                            <Route path="/productview" element={<ProductView />} />
+                        </Route>
+
+                        <Route path="/admin" element={
+                            <AdminRoute>
+                                <AdminLayout />
+                            </AdminRoute>
+                        }>
+                            <Route index element={<AdminDashboard />} />
+                            <Route path="equipamentos" element={<AdminEquipamentos />} />   
+                        </Route>
+
                     </Route>
+
+                    <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
             </BrowserRouter>
         </AuthProvider>
-    );
-}
-
-function Layout() {
-    return (
-        <>
-            <Header />
-            <main>
-                <Outlet />
-            </main>
-        </>
     );
 }
 

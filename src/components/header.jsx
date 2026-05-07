@@ -3,16 +3,16 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './components.css';
 import { useState } from 'react';
-import { useAuth } from '../utils/useAuth'; // Importando useAuth
+import { useAuth } from '../utils/useAuth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faRightFromBracket, faUser, faShield, faNewspaper, faList } from '@fortawesome/free-solid-svg-icons';
 import logo from '../assets/locaobraLogo.png';
 
 function Header() {
-    const { user, logout } = useAuth(); // Obtendo o usuário e a função de logout;
+    const { user, logout } = useAuth();
 
     const handleLogout = () => {
-        logout(); // Chama a função de logout
+        logout();
     };
 
     return (
@@ -26,16 +26,6 @@ function Header() {
                 </div>
 
                 <nav>
-                    {/* ==================== MENU PARA ADMIN ==================== */}
-                    {user && user.tipo === 'ADMIN' && (
-                        <>
-                            <Link to="/admin" className='abas dashboard-link'>
-                                <FontAwesomeIcon icon={faShield} /> Admin
-                            </Link>
-
-                        </>
-                    )}
-
                     {/* ==================== MENU PARA FUNCIONARIO ==================== */}
                     {user && user.tipo === 'FUNCIONARIO' && (
                         <>
@@ -43,7 +33,7 @@ function Header() {
                     )}
 
                     {/* ==================== MENU PARA CLIENTE ==================== */}
-                    {user && user.tipo === 'CLIENTE' || !user && (
+                    {(!user || ['CLIENTE', 'ADMIN', 'FUNCIONARIO'].includes(user?.tipo)) && (
                         <>
                             <Link to="/catalogo/acesso-elevacao" className='abas'>Acesso e Elevação</Link>
                             <Link to="/catalogo/andaimes" className='abas'>Andaimes</Link>
@@ -52,17 +42,24 @@ function Header() {
                         </>
                     )}
 
-
                 </nav>
                 <nav>
                     {/* ==================== PERFIL E LOGOUT ==================== */}
                     {user ? (
-                        <div className="dropdown"> {/* Adicionado a classe dropdown aqui */}
+                        <div className="dropdown">
                             <button className="abas perfil-link">
                                 <FontAwesomeIcon icon={faUser} /> {user.nome || 'Perfil'}
                             </button>
 
                             <div className="dropdown-content user-dropdown-content">
+                                {user && user.tipo === 'ADMIN' && (
+                                    <>
+                                        <Link to="/admin" className='sub-item'>
+                                            <FontAwesomeIcon icon={faShield} /> Admin
+                                        </Link>
+
+                                    </>
+                                )}
                                 <Link to="/perfil" className="sub-item">
                                     <FontAwesomeIcon icon={faUser} /> Ver Perfil
                                 </Link>
